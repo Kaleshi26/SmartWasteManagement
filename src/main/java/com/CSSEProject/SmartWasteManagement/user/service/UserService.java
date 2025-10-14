@@ -7,6 +7,8 @@ import com.CSSEProject.SmartWasteManagement.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List; // <<< ADD THIS IMPORT
+
 @Service // Tells Spring that this is a service class
 public class UserService {
 
@@ -34,4 +36,15 @@ public class UserService {
         // Step 3: Save the new user to the database
         return userRepository.save(newUser);
     }
+
+    // <<< START: NEW METHOD >>>
+    /**
+     * Retrieves a list of all users from the database.
+     * @return a list of User objects.
+     */
+    public List<User> getAllUsers() {
+        // This uses the JpaRepository method to find all entries in the users table
+        return userRepository.findAll();
+    }
+    // <<< END: NEW METHOD >>>
 }
