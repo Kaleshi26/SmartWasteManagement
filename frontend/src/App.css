@@ -591,5 +591,36 @@ td[style*="background-color"] {
   max-width: none !important;
 }
 
+/* --- Add these styles for the filter buttons --- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
 
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background-color: #e9ecef;
+  padding: 0.25rem;
+  border-radius: 7px;
+}
+
+.filter-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #495057;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-buttons button.active {
+  background-color: white;
+  color: #0d6efd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
 
