@@ -232,3 +232,11 @@ th {
   /* --- MODIFIED: Hover color changed to a darker green --- */
   background-color: #218838;
 }
+
+/* Add this style to the bottom of App.css */
+.success-message {
+  color: #28a745;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
