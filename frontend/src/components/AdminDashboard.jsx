@@ -4,15 +4,13 @@ import axios from 'axios';
 
 function AdminDashboard({ user }) {
   const [stats, setStats] = useState(null);
-  const [events, setEvents] = useState([]); // <<< State for the collection events
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // We can fetch both stats and events at the same time
     const fetchData = async () => {
       try {
-        // Promise.all lets us run multiple requests in parallel
         const [statsResponse, eventsResponse] = await Promise.all([
           axios.get('http://localhost:8080/api/reports/dashboard-stats'),
           axios.get('http://localhost:8080/api/reports/collection-events')
@@ -30,29 +28,34 @@ function AdminDashboard({ user }) {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <h2 className="dashboard-title">Admin Dashboard</h2>
+    <div>
+      <h1 className="dashboard-title">Admin Dashboard</h1>
       <p className="dashboard-welcome">Overview of the waste management system.</p>
 
-      {/* --- Stats Grid (Existing Code) --- */}
       <div className="stats-grid">
-        {loading && <p>Loading stats...</p>}
+        {loading && <p>Loading...</p>}
         {error && <p className="error-message">{error}</p>}
         {stats && (
           <>
-            <div className="stat-card"><h3 className="stat-title">Total Waste Collected</h3><p className="stat-value">{stats.totalWeightKg.toFixed(2)} Kg</p></div>
-            <div className="stat-card"><h3 className="stat-title">Total Collections</h3><p className="stat-value">{stats.totalCollections}</p></div>
-            <div className="stat-card"><h3 className="stat-title">Registered Bins</h3><p className="stat-value">{stats.totalBins}</p></div>
+            <div className="stat-card">
+              <h3 className="stat-title">Total Waste Collected</h3>
+              <p className="stat-value">{stats.totalWeightKg.toFixed(2)} Kg</p>
+            </div>
+            <div className="stat-card">
+              <h3 className="stat-title">Total Collections</h3>
+              <p className="stat-value">{stats.totalCollections}</p>
+            </div>
+            <div className="stat-card">
+              <h3 className="stat-title">Registered Bins</h3>
+              <p className="stat-value">{stats.totalBins}</p>
+            </div>
           </>
         )}
       </div>
 
-      {/* --- START: NEW COLLECTION LOG TABLE --- */}
-      <div className="dashboard-card" style={{ marginTop: '2rem' }}>
+      <div className="data-card">
         <h3>Recent Collection Events</h3>
-        {loading && <p>Loading events...</p>}
-        {error && <p className="error-message">{error}</p>}
-        {!loading && !error && (
+        {loading ? <p>Loading events...</p> : error ? <p className="error-message">{error}</p> : (
           <table>
             <thead>
               <tr>
@@ -72,7 +75,6 @@ function AdminDashboard({ user }) {
                     <td>{event.binId}</td>
                     <td>{event.residentName}</td>
                     <td>{event.staffName}</td>
-                    {/* Format the date to be more readable */}
                     <td>{new Date(event.collectionTime).toLocaleString()}</td>
                     <td>{event.weightInKg.toFixed(2)}</td>
                   </tr>
@@ -86,8 +88,6 @@ function AdminDashboard({ user }) {
           </table>
         )}
       </div>
-      {/* --- END: NEW COLLECTION LOG TABLE --- */}
-
     </div>
   );
 }

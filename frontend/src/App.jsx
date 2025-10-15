@@ -1,14 +1,11 @@
 // File: frontend/src/App.jsx
 import React, { useState } from 'react';
-
-// Import all the necessary components
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import AdminDashboard from './components/AdminDashboard';
 import StaffDashboard from './components/StaffDashboard';
 import ResidentDashboard from './components/ResidentDashboard';
-
-// Import the single CSS file
+import Sidebar from './components/Sidebar';
 import './App.css';
 
 function App() {
@@ -45,29 +42,34 @@ function App() {
     }
   };
 
+  // The return statement is the main change. We use a React Fragment (<>)
+  // to avoid adding an unnecessary wrapper div around the auth pages.
   return (
-    <div className="app-container">
+    <>
       {!currentUser ? (
+        // If logged out, render the auth page directly.
+        // The centering is handled by the .login-container class inside the LoginPage component.
         renderAuthPage()
       ) : (
-        <div>
-          <header className="app-header">
-            <nav className="app-nav">
-              <h1>Smart Waste Management</h1>
+        // If logged in, render the main dashboard layout with the sidebar.
+        <div className="app-wrapper">
+          <Sidebar />
+          <div className="content-wrapper">
+            <header className="app-header">
               <div className="user-info">
                 <span>Welcome, {currentUser.name}!</span>
                 <button onClick={handleLogout} className="logout-button">
                   Logout
                 </button>
               </div>
-            </nav>
-          </header>
-          <main className="main-content">
-            {renderDashboard()}
-          </main>
+            </header>
+            <main className="main-content">
+              {renderDashboard()}
+            </main>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
