@@ -240,3 +240,32 @@ th {
   margin-bottom: 1rem;
   font-weight: 600;
 }
+
+/* Add these styles to the bottom of App.css */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.stat-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stat-title {
+  color: #718096; /* gray-500 */
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stat-value {
+  color: #1a202c; /* gray-800 */
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
