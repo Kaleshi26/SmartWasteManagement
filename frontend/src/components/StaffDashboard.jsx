@@ -26,7 +26,7 @@ function StaffDashboard({ user }) {
 
     try {
       // Send the POST request to the backend endpoint we created earlier
-      const response = await axios.post('http://localhost:8083/api/waste/collect', collectionData);
+      const response = await axios.post('http://localhost:8080/api/waste/collect', collectionData);
       setSuccessMessage(`Successfully recorded collection for Bin ID: ${response.data.wasteBin.binId}`);
       // Clear the form on success
       setBinId('');
