@@ -368,9 +368,10 @@ function BillingPayments({ user }) {
                         <td style={{ padding: '12px' }}>{invoice.date}</td>
                         <td style={{ padding: '12px' }}>{invoice.dueDate}</td>
                         <td style={{ padding: '12px', fontWeight: '500', textAlign: 'center' }}>{invoice.weight ? `${invoice.weight} kg` : 'N/A'}</td>
-                        <td style={{ padding: '12px', fontWeight: '500', textAlign: 'center' }}>{invoice.weightCharge ? `Rs${invoice.weightCharge.toFixed(2)}` : 'N/A'}</td>
+                        <td style={{ padding: '12px', fontWeight: '500', textAlign: 'center' }}>{invoice.weightCharge ? `Rs ${invoice.weightCharge.toFixed(2)}` : 'N/A'}</td>
                         <td style={{ padding: '12px' }}>
-                          <span className={`status-badge ${getStatusClass(invoice.status)}`} style={{
+                          <span className={`status-badge ${getStatusClass(invoice.status)}`} s
+                                tyle={{
                             padding: '4px 8px',
                             borderRadius: '12px',
                             fontSize: '12px',
@@ -506,7 +507,7 @@ function BillingPayments({ user }) {
                 <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Invoice Summary</h4>
                 <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Invoice ID:</strong> {selectedInvoice.invoiceId}</p>
                 <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Weight:</strong> {selectedInvoice.weight ? `${selectedInvoice.weight} kg` : 'N/A'}</p>
-                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Weight Charge:</strong> {selectedInvoice.weightCharge ? `$${selectedInvoice.weightCharge.toFixed(2)}/kg` : 'N/A'}</p>
+                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Weight Charge:</strong> {selectedInvoice.weightCharge ? `Rs ${selectedInvoice.weightCharge.toFixed(2)}` : 'N/A'}</p>
                 <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Due Date:</strong> {selectedInvoice.dueDate}</p>
               </div>
 
