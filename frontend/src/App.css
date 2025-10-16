@@ -1,271 +1,626 @@
-/* File: frontend/src/App.css */
+/* --- CSS Reset and Base Styles --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-/* General Body and App Layout */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- General Body Styles --- */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  margin: 0;
-  background-color: #f0f2f5;
+  background-color: #f8f9fa;
+  color: #343a40;
+  line-height: 1.6;
 }
 
-.app-container {
-  min-height: 100vh;
-}
-
-/* Login and Signup Forms */
+/* --- Login and Signup Forms --- */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 .login-form {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  margin: auto;
+  color: #333 !important;
 }
 
 .login-form h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: #333 !important;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #555;
+  color: #495057 !important;
+  font-size: 0.95rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+  padding: 0.875rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background-color: #fff;
+  color: #333 !important;
+}
+
+.form-group input::placeholder {
+  color: #6c757d !important;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+  color: #333 !important;
 }
 
 .login-form button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: none;
-  border-radius: 4px;
-  color: white;
+  border-radius: 6px;
+  color: white !important;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-  /* --- MODIFIED: Login/Signup button changed from blue to green --- */
+  transition: all 0.2s;
   background-color: #28a745;
+  margin-top: 0.5rem;
 }
 
 .login-form button:hover {
-  /* --- MODIFIED: Hover color changed to a darker green --- */
   background-color: #218838;
+  transform: translateY(-1px);
+  color: white !important;
 }
 
 .error-message {
-  color: #d93025;
+  color: #dc3545 !important;
   text-align: center;
   margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .navigation-link {
   text-align: center;
-  margin-top: 1rem;
-  color: #007bff; /* Kept this link blue as requested */
+  margin-top: 1.5rem;
+  color: #007bff !important;
   cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+  display: block;
+}
+
+.navigation-link:hover {
+  color: #0056b3 !important;
   text-decoration: underline;
 }
 
-/* Logged-in Dashboard Layout */
-.app-header {
-  background-color: #2d3748;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.login-form * {
+  color: #333 !important;
 }
 
-.app-nav {
+.login-form input {
+  color: #333 !important;
+}
+
+/* --- Main App Layout with Sidebar --- */
+.app-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.75rem 1.5rem;
+  min-height: 100vh;
+  width: 100%;
 }
 
-.app-nav h1 {
-  font-size: 1.25rem;
+.sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: white;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
   font-weight: bold;
+  border-bottom: 1px solid #495057;
+}
+
+.sidebar-nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  color: #adb5bd;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-nav li a:hover {
+  background-color: #495057;
+  color: white;
+  border-left-color: #28a745;
+}
+
+.sidebar-nav li.active a {
+  background-color: #0d6efd;
+  color: white;
+  border-left-color: #0056b3;
+}
+
+.sidebar-nav .icon {
+  margin-right: 1rem;
+  font-size: 1.2rem;
+}
+
+.content-wrapper {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  max-width: none !important;
+}
+
+/* --- Modernized Header --- */
+.app-header {
+  background-color: white;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-}
-
-.user-info span {
-  margin-right: 1rem;
+  color: #343a40;
+  font-weight: 500;
 }
 
 .logout-button {
+  background-color: #dc3545;
   color: white;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
   cursor: pointer;
+  font-weight: 500;
   transition: background-color 0.2s;
-  /* --- MODIFIED: Logout button changed from red to green --- */
-  background-color: #28a745;
 }
 
 .logout-button:hover {
-  /* --- MODIFIED: Hover color changed to a darker green --- */
-  background-color: #218838;
+  background-color: #c82333;
 }
 
+/* --- Main Content Area --- */
 .main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0;
+  flex: 1;
+  background-color: #f8f9fa;
+  width: 100%;
+  min-height: calc(100vh - 80px);
 }
 
-/* Dashboard Component Styles */
-.dashboard-container {
-  padding: 2rem;
+/* --- FULL SCREEN DASHBOARD STYLES - FIXED --- */
+
+/* Common Dashboard Styles */
+.dashboard-container,
+.admin-dashboard,
+.staff-dashboard {
+  width: 100%;
+  min-height: calc(100vh - 80px); /* Account for header */
+  background-color: #f8f9fa;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-header {
+  padding: 2rem 2rem 1rem 2rem;
+  width: 100%;
 }
 
 .dashboard-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 0.5rem 0;
 }
 
+.dashboard-subtitle,
 .dashboard-welcome {
-  margin-top: 0.5rem;
-  color: #4a5568;
+  font-size: 1rem;
+  color: #6c757d;
+  margin: 0;
 }
 
-.dashboard-card {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.dashboard-card h3 {
-  font-weight: 600;
-  font-size: 1.125rem;
-}
-
-.dashboard-card ul {
-  list-style-type: disc;
-  list-style-position: inside;
-  margin-top: 0.5rem;
-  color: #4a5568;
-}
-
-/* Invoice Table Styles */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-}
-
-th, td {
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 1rem;
-  text-align: left;
-}
-
-thead {
-  background-color: #f7fafc;
-}
-
-th {
-  font-weight: 600;
-  color: #4a5568;
-}
-
-/* Status Badge Styles */
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-paid {
-  background-color: #c6f6d5;
-  color: #2f855a;
-}
-
-.status-unpaid {
-  background-color: #fed7d7;
-  color: #c53030;
-}
-
-/* Pay Button Style */
-.pay-button {
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  /* --- MODIFIED: Pay button changed from blue to green --- */
-  background-color: #28a745;
-}
-
-.pay-button:hover {
-  /* --- MODIFIED: Hover color changed to a darker green --- */
-  background-color: #218838;
-}
-
-/* Add this style to the bottom of App.css */
-.success-message {
-  color: #28a745;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-/* Add these styles to the bottom of App.css */
-
+/* Stats Grid - Use full available width */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-top: 1.5rem;
+  margin: 0 2rem 2rem 2rem;
+  width: auto;
 }
 
 .stat-card {
   background-color: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .stat-title {
-  color: #718096; /* gray-500 */
+  color: #6c757d;
   font-size: 0.875rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem 0;
 }
 
 .stat-value {
-  color: #1a202c; /* gray-800 */
-  font-size: 2.25rem;
-  font-weight: bold;
-  margin-top: 0.5rem;
+  color: #212529;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
 }
+
+/* Data Cards - Use full available width */
+.dashboard-card,
+.data-card {
+  background-color: white;
+  margin: 0 2rem 2rem 2rem;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: auto;
+  min-height: 400px;
+}
+
+.dashboard-card h3,
+.data-card h3 {
+  font-size: 1.25rem;
+  margin: 0 0 1.5rem 0;
+  color: #343a40;
+  font-weight: 600;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  color: #343a40;
+}
+
+thead th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-unpaid {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Pay Button */
+.pay-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.pay-button:hover {
+  background-color: #218838;
+}
+
+.pay-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Loading and Error States */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  width: 100%;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+/* No Data Message */
+td[colspan] {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Ensure selected row text is visible */
+td[style*="background-color"] {
+  color: #343a40 !important;
+}
+
+/* --- Force Full Width for All Dashboard Elements --- */
+.admin-dashboard > *,
+.staff-dashboard > *,
+.dashboard-container > * {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Remove any max-width constraints */
+.dashboard-container,
+.admin-dashboard,
+.staff-dashboard,
+.data-card,
+.dashboard-card,
+.stats-grid {
+  max-width: none !important;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .content-wrapper {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+  }
+
+  .app-header {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    margin: 0 1rem 1rem 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .dashboard-card,
+  .data-card {
+    margin: 0 1rem 1rem 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .dashboard-header {
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+
+  .login-form {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .app-wrapper {
+    flex-direction: column;
+  }
+
+  .login-form {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0 0.5rem 1rem 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .dashboard-card,
+  .data-card {
+    margin: 0 0.5rem 1rem 0.5rem;
+    width: calc(100% - 1rem);
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+  }
+
+  th, td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* --- Utility Classes --- */
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+/* --- Loading States --- */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #28a745;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- NUCLEAR OPTION: Force Full Width Override --- */
+.main-content > div {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.content-wrapper > .main-content {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* --- Add these styles for the filter buttons --- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background-color: #e9ecef;
+  padding: 0.25rem;
+  border-radius: 7px;
+}
+
+.filter-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #495057;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-buttons button.active {
+  background-color: white;
+  color: #0d6efd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
