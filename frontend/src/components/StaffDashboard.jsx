@@ -3,84 +3,138 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function StaffDashboard({ user }) {
+  // State to manage which view is shown: 'scan' or 'confirm'
+  const [view, setView] = useState('scan');
+
   // State for the form inputs
-  const [binId, setBinId] = useState('');
-  const [weightInKg, setWeightInKg] = useState('');
+  const [inputValue, setInputValue] = useState(''); // For the initial Bin ID input
+  const [binDetails, setBinDetails] = useState(null); // To store details after scanning
+  const [weight, setWeight] = useState(''); // For the weight input
 
-  // State for handling messages
+  // State for handling loading, errors, and success messages
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
 
-  const handleSubmit = async (event) => {
+  // --- Step 1: Handle the "Scan" or "Get Bin Details" action ---
+  const handleScan = async (event) => {
     event.preventDefault();
+    setLoading(true);
     setError(null);
-    setSuccessMessage(null);
-    setIsLoading(true);
-
-    const collectionData = {
-      binId: binId,
-      staffId: user.id, // Use the logged-in staff member's ID
-      weightInKg: parseFloat(weightInKg), // Convert weight to a number
-    };
-
+    setSuccess(null);
     try {
-      // Send the POST request to the backend endpoint we created earlier
-      const response = await axios.post('http://localhost:8080/api/waste/collect', collectionData);
-      setSuccessMessage(`Successfully recorded collection for Bin ID: ${response.data.wasteBin.binId}`);
-      // Clear the form on success
-      setBinId('');
-      setWeightInKg('');
+      // Make a GET request to the new endpoint to fetch bin details
+      const response = await axios.get(`http://localhost:8080/api/waste/bin/${inputValue}`);
+      setBinDetails(response.data);
+      setView('confirm'); // On success, switch to the confirmation view
     } catch (err) {
-      setError(err.response?.data || 'Failed to record collection. Please try again.');
+      setError(err.response?.data || 'Error fetching bin details.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="dashboard-container">
-      <h2 className="dashboard-title">Record Waste Collection</h2>
-      <p className="dashboard-welcome">Enter the Bin ID and weight to record a new collection.</p>
+  // --- Step 2: Handle the final "Confirm Collection" action ---
+  const handleConfirm = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const collectionData = {
+        binId: binDetails.binId,
+        staffId: user.id,
+        weightInKg: parseFloat(weight),
+      };
+      // Make the POST request to the existing collection endpoint
+      await axios.post('http://localhost:8080/api/waste/collect', collectionData);
+      setSuccess(`Collection for bin ${binDetails.binId} recorded successfully!`);
+      handleCancel(); // Reset the form back to the scan view
+    } catch (err) {
+      setError(err.response?.data || 'Failed to record collection.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      <div className="dashboard-card">
-        {/* We use the 'login-form' class here to reuse existing styles */}
-        <form onSubmit={handleSubmit} className="login-form" style={{ maxWidth: 'none', boxShadow: 'none', padding: 0 }}>
-          <div className="form-group">
-            <label htmlFor="binId">Bin ID (e.g., BIN-101-OG47)</label>
-            <input
-              type="text"
-              id="binId"
-              value={binId}
-              onChange={(e) => setBinId(e.target.value)}
-              placeholder="Scan or enter Bin ID"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="weight">Weight (in Kg)</label>
-            <input
-              type="number"
-              id="weight"
-              value={weightInKg}
-              onChange={(e) => setWeightInKg(e.target.value)}
-              placeholder="Enter waste weight"
-              step="0.1" // Allows decimal values
-              required
-            />
-          </div>
+  // Function to reset the entire process and go back to the scan view
+  const handleCancel = () => {
+    setView('scan');
+    setInputValue('');
+    setBinDetails(null);
+    setWeight('');
+    setError(null);
+    // We don't clear the success message so the user can see the confirmation
+  };
 
-          {/* We reuse the message styles from the login/signup forms */}
-          {error && <p className="error-message">{error}</p>}
-          {successMessage && <p className="success-message">{successMessage}</p>}
-
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Recording...' : 'Confirm Collection'}
-          </button>
-        </form>
+  // --- RENDER THE "SCAN" VIEW ---
+  if (view === 'scan') {
+    return (
+      <div className="dashboard-container">
+        <h2 className="dashboard-title">Scan Waste Bin</h2>
+        <div className="dashboard-card">
+          <form onSubmit={handleScan} className="login-form" style={{ boxShadow: 'none', padding: 0 }}>
+            {success && <p className="success-message">{success}</p>}
+            {error && <p className="error-message">{error}</p>}
+            <div className="form-group">
+              <label htmlFor="binId">Enter Bin ID</label>
+              <input
+                id="binId"
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="e.g., BIN-101-OG47"
+                required
+              />
+            </div>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Searching...' : 'Get Bin Details'}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // --- RENDER THE "CONFIRM" VIEW ---
+  if (view === 'confirm') {
+    return (
+      <div className="dashboard-container">
+        <h2 className="dashboard-title">Confirm Collection</h2>
+        <div className="dashboard-card">
+          <div className="bin-details">
+            <h3>Bin Details</h3>
+            <p><strong>Bin ID:</strong> {binDetails.binId}</p>
+            <p><strong>Address:</strong> {binDetails.address}</p>
+            <p><strong>Resident:</strong> {binDetails.residentName}</p>
+          </div>
+          <form onSubmit={handleConfirm} className="login-form" style={{ boxShadow: 'none', padding: 0, marginTop: '1.5rem' }}>
+            {error && <p className="error-message">{error}</p>}
+            <div className="form-group">
+              <label htmlFor="weight">Enter Weight (Kg)</label>
+              <input
+                id="weight"
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                step="0.1"
+                placeholder="e.g., 12.5"
+                required
+              />
+            </div>
+            <div className="button-group">
+              <button type="button" className="cancel-button" onClick={handleCancel}>
+                Cancel
+              </button>
+              <button type="submit" disabled={loading}>
+                {loading ? 'Confirming...' : 'Confirm Collecting'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default StaffDashboard;
