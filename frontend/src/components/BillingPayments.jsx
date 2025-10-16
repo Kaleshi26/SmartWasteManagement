@@ -30,73 +30,34 @@ function BillingPayments({ user }) {
     walletPin: ''
   });
 
-  // Enhanced mock data with more variety
-  const mockInvoices = [
-    {
-      id: 1,
-      invoiceId: 'INV-001',
-      date: '2024-01-15',
-      amount: 25.50,
-      status: 'UNPAID',
-      dueDate: '2024-02-15',
-      description: 'Waste Collection Service - January'
-    },
-    {
-      id: 2,
-      invoiceId: 'INV-002',
-      date: '2024-01-20',
-      amount: 18.75,
-      status: 'UNPAID',
-      dueDate: '2024-02-20',
-      description: 'Waste Collection Service - January'
-    },
-    {
-      id: 3,
-      invoiceId: 'INV-003',
-      date: '2024-01-25',
-      amount: 32.00,
-      status: 'PAID',
-      dueDate: '2024-02-25',
-      description: 'Waste Collection Service - January'
-    },
-    {
-      id: 4,
-      invoiceId: 'INV-004',
-      date: '2024-02-01',
-      amount: 15.25,
-      status: 'UNPAID',
-      dueDate: '2024-03-01',
-      description: 'Waste Collection Service - February'
-    },
-    {
-      id: 5,
-      invoiceId: 'INV-005',
-      date: '2024-02-05',
-      amount: 28.90,
-      status: 'OVERDUE',
-      dueDate: '2024-02-15',
-      description: 'Waste Collection Service - February'
-    },
-    {
-      id: 6,
-      invoiceId: 'INV-006',
-      date: '2024-02-10',
-      amount: 22.40,
-      status: 'PAID',
-      dueDate: '2024-03-10',
-      description: 'Waste Collection Service - February'
-    }
-  ];
+  // API base URL - adjust this to match your backend
+  const API_BASE_URL = 'http://localhost:8083/api';
 
-  // Function to fetch invoices
+  // Function to fetch invoices from API
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setInvoices(mockInvoices);
+      // For now, we'll use a default user ID of 1
+      // In a real application, this would come from the logged-in user context
+      const userId = user?.id || 1;
+      const response = await axios.get(`${API_BASE_URL}/invoices/user/${userId}`);
+
+      // Transform the API response to match the expected format
+      const transformedInvoices = response.data.map(invoice => ({
+        id: invoice.id,
+        invoiceId: invoice.invoiceId,
+        date: invoice.invoiceDate,
+        dueDate: invoice.dueDate,
+        weight: invoice.weight,
+        weightCharge: invoice.weightCharge,
+        amount: invoice.amount,
+        status: invoice.status
+      }));
+
+      setInvoices(transformedInvoices);
     } catch (err) {
-      setError('Could not fetch invoices.');
-      console.error(err);
+      setError('Could not fetch invoices. Please try again later.');
+      console.error('Error fetching invoices:', err);
     } finally {
       setLoading(false);
     }
@@ -127,7 +88,7 @@ function BillingPayments({ user }) {
     // Sort functionality
     filtered.sort((a, b) => {
       let aValue, bValue;
-      
+
       switch (sortBy) {
         case 'date':
           aValue = new Date(a.date);
@@ -188,25 +149,28 @@ function BillingPayments({ user }) {
 
     setPaymentLoading(selectedInvoice.invoiceId);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setInvoices(prevInvoices => 
-        prevInvoices.map(invoice => 
-          invoice.invoiceId === selectedInvoice.invoiceId 
+      // Call the API to process the payment
+      const response = await axios.post(`${API_BASE_URL}/invoices/pay/${selectedInvoice.id}`);
+
+      // Update the invoice status in the local state
+      setInvoices(prevInvoices =>
+        prevInvoices.map(invoice =>
+          invoice.id === selectedInvoice.id
             ? { ...invoice, status: 'PAID' }
             : invoice
         )
       );
-      
+
       setSuccessMessage(`Payment successful for invoice ${selectedInvoice.invoiceId} using ${paymentMethod}!`);
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 5000);
-      
+
       // Close modal
       setShowPaymentModal(false);
       setSelectedInvoice(null);
       setPaymentMethod('');
     } catch (err) {
+      console.error('Payment error:', err);
       alert('Payment failed. Please try again.');
     } finally {
       setPaymentLoading(null);
@@ -235,19 +199,15 @@ function BillingPayments({ user }) {
     switch (status) {
       case 'PAID': return 'status-paid';
       case 'UNPAID': return 'status-unpaid';
-      case 'OVERDUE': return 'status-overdue';
+      case 'PARTIALLY_PAID': return 'status-partial';
       default: return 'status-default';
     }
   };
 
   // Calculate totals
-  const totalAmount = filteredInvoices.reduce((sum, invoice) => sum + invoice.amount, 0);
-  const unpaidAmount = filteredInvoices
-    .filter(invoice => invoice.status === 'UNPAID')
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
-  const overdueAmount = filteredInvoices
-    .filter(invoice => invoice.status === 'OVERDUE')
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
+  const totalInvoices = filteredInvoices.length;
+  const unpaidInvoices = filteredInvoices.filter(invoice => invoice.status === 'UNPAID').length;
+  const paidInvoices = filteredInvoices.filter(invoice => invoice.status === 'PAID').length;
 
   return (
     <div className="dashboard-container">
@@ -268,7 +228,7 @@ function BillingPayments({ user }) {
           justifyContent: 'space-between'
         }}>
           <span>✅ {successMessage}</span>
-          <button 
+          <button
             onClick={() => setShowSuccessMessage(false)}
             style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
           >
@@ -280,24 +240,24 @@ function BillingPayments({ user }) {
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Total Amount</h4>
-          <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#212529' }}>${totalAmount.toFixed(2)}</p>
+          <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Total Invoices</h4>
+          <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#212529' }}>{totalInvoices}</p>
         </div>
         <div style={{ backgroundColor: '#fff3cd', padding: '20px', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
           <h4 style={{ margin: '0 0 10px 0', color: '#856404' }}>Unpaid</h4>
-          <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#856404' }}>${unpaidAmount.toFixed(2)}</p>
+          <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#856404' }}>{unpaidInvoices}</p>
         </div>
-        <div style={{ backgroundColor: '#f8d7da', padding: '20px', borderRadius: '8px', border: '1px solid #f5c6cb' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#721c24' }}>Overdue</h4>
-          <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#721c24' }}>${overdueAmount.toFixed(2)}</p>
-        </div>
+         <div style={{ backgroundColor: '#d4edda', padding: '20px', borderRadius: '8px', border: '1px solid #c3e6cb' }}>
+           <h4 style={{ margin: '0 0 10px 0', color: '#155724' }}>Paid</h4>
+           <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#155724' }}>{paidInvoices}</p>
+         </div>
       </div>
 
       {/* Filters and Search */}
-      <div style={{ 
-        backgroundColor: '#f8f9fa', 
-        padding: '20px', 
-        borderRadius: '8px', 
+      <div style={{
+        backgroundColor: '#f8f9fa',
+        padding: '20px',
+        borderRadius: '8px',
         marginBottom: '20px',
         display: 'flex',
         flexWrap: 'wrap',
@@ -320,7 +280,7 @@ function BillingPayments({ user }) {
             }}
           />
         </div>
-        
+
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Status:</label>
           <select
@@ -333,10 +293,9 @@ function BillingPayments({ user }) {
               fontSize: '14px'
             }}
           >
-            <option value="ALL">All Status</option>
-            <option value="UNPAID">Unpaid</option>
-            <option value="PAID">Paid</option>
-            <option value="OVERDUE">Overdue</option>
+                <option value="ALL">All Status</option>
+                <option value="UNPAID">Unpaid</option>
+                <option value="PAID">Paid</option>
           </select>
         </div>
 
@@ -383,33 +342,33 @@ function BillingPayments({ user }) {
             <p style={{ color: '#6c757d' }}>Loading invoices...</p>
           </div>
         )}
-        
+
         {error && <p className="error-message">{error}</p>}
-        
+
         {!loading && !error && (
           <>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Invoice ID</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Description</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Date</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Due Date</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Amount</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Action</th>
-                  </tr>
-                </thead>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8f9fa' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Invoice ID</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Invoice Date</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Due Date</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Weight (kg)</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Weight Charge</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
+                      <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Action</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {currentInvoices.length > 0 ? (
                     currentInvoices.map((invoice) => (
                       <tr key={invoice.id} style={{ borderBottom: '1px solid #dee2e6' }}>
                         <td style={{ padding: '12px', fontWeight: '500' }}>{invoice.invoiceId}</td>
-                        <td style={{ padding: '12px', color: '#6c757d' }}>{invoice.description}</td>
                         <td style={{ padding: '12px' }}>{invoice.date}</td>
                         <td style={{ padding: '12px' }}>{invoice.dueDate}</td>
-                        <td style={{ padding: '12px', fontWeight: '500' }}>${invoice.amount.toFixed(2)}</td>
+                        <td style={{ padding: '12px', fontWeight: '500', textAlign: 'center' }}>{invoice.weight ? `${invoice.weight} kg` : 'N/A'}</td>
+                        <td style={{ padding: '12px', fontWeight: '500', textAlign: 'center' }}>{invoice.weightCharge ? `Rs${invoice.weightCharge.toFixed(2)}` : 'N/A'}</td>
                         <td style={{ padding: '12px' }}>
                           <span className={`status-badge ${getStatusClass(invoice.status)}`} style={{
                             padding: '4px 8px',
@@ -422,7 +381,7 @@ function BillingPayments({ user }) {
                           </span>
                         </td>
                         <td style={{ padding: '12px' }}>
-                          {invoice.status === 'UNPAID' || invoice.status === 'OVERDUE' ? (
+                          {invoice.status === 'UNPAID' ? (
                             <button
                               onClick={() => handlePayInvoice(invoice)}
                               disabled={paymentLoading === invoice.invoiceId}
@@ -459,10 +418,10 @@ function BillingPayments({ user }) {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: '20px',
                 gap: '10px'
               }}>
@@ -479,11 +438,11 @@ function BillingPayments({ user }) {
                 >
                   Previous
                 </button>
-                
+
                 <span style={{ padding: '0 10px' }}>
                   Page {currentPage} of {totalPages}
                 </span>
-                
+
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
@@ -543,13 +502,13 @@ function BillingPayments({ user }) {
             </div>
 
             {/* Invoice Summary */}
-            <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px', marginBottom: '20px' }}>
-              <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Invoice Summary</h4>
-              <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Invoice ID:</strong> {selectedInvoice.invoiceId}</p>
-              <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Description:</strong> {selectedInvoice.description}</p>
-              <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Amount:</strong> ${selectedInvoice.amount.toFixed(2)}</p>
-              <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Due Date:</strong> {selectedInvoice.dueDate}</p>
-            </div>
+              <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px', marginBottom: '20px' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>Invoice Summary</h4>
+                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Invoice ID:</strong> {selectedInvoice.invoiceId}</p>
+                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Weight:</strong> {selectedInvoice.weight ? `${selectedInvoice.weight} kg` : 'N/A'}</p>
+                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Weight Charge:</strong> {selectedInvoice.weightCharge ? `$${selectedInvoice.weightCharge.toFixed(2)}/kg` : 'N/A'}</p>
+                <p style={{ margin: '5px 0', color: '#6c757d' }}><strong>Due Date:</strong> {selectedInvoice.dueDate}</p>
+              </div>
 
             {/* Payment Method Selection */}
             <div style={{ marginBottom: '20px' }}>

@@ -20,8 +20,11 @@ public class Invoice {
     @JoinColumn(name = "resident_id", nullable = false)
     private User resident;
 
+    private String invoiceId;
     private LocalDate invoiceDate;
     private LocalDate dueDate;
+    private Double weight;
+    private Double weightCharge;
     private Double amount;
 
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,7 @@
 // File: src/main/java/com/CSSEProject/SmartWasteManagement/payment/controller/PaymentController.java
 package com.CSSEProject.SmartWasteManagement.payment.controller;
 
+import com.CSSEProject.SmartWasteManagement.dto.InvoiceDto;
 import com.CSSEProject.SmartWasteManagement.payment.entity.Invoice;
 import com.CSSEProject.SmartWasteManagement.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ public class PaymentController {
     // Endpoint to get invoices for a specific user
     // e.g., GET http://localhost:8080/api/invoices/user/1
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Invoice>> getUserInvoices(@PathVariable Long userId) {
-        List<Invoice> invoices = paymentService.getInvoicesForUser(userId);
+    public ResponseEntity<List<InvoiceDto>> getUserInvoices(@PathVariable Long userId) {
+        List<InvoiceDto> invoices = paymentService.getInvoicesForUserAsDto(userId);
         return ResponseEntity.ok(invoices);
     }
 
@@ -30,7 +31,8 @@ public class PaymentController {
     public ResponseEntity<?> payInvoice(@PathVariable Long invoiceId) {
         try {
             Invoice paidInvoice = paymentService.payInvoice(invoiceId);
-            return ResponseEntity.ok(paidInvoice);
+            InvoiceDto invoiceDto = paymentService.convertToDto(paidInvoice);
+            return ResponseEntity.ok(invoiceDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
