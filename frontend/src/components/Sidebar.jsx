@@ -1,14 +1,36 @@
 // File: frontend/src/components/Sidebar.jsx
 import React from 'react';
 
-function Sidebar() {
-  // In a real app, these would be links. For now, they are placeholders.
-  const navItems = [
-    { name: 'Dashboard', icon: '🏠' },
-    { name: 'Reports', icon: '📊' },
-    { name: 'Users', icon: '👥' },
-    { name: 'Settings', icon: '⚙️' },
-  ];
+function Sidebar({ user, onNavigate, currentView }) {
+  // Define navigation items based on user role
+  const getNavItems = () => {
+    const baseItems = [
+      { name: 'Dashboard', icon: '🏠', view: 'dashboard' },
+      { name: 'Users', icon: '👥', view: 'users' },
+      { name: 'Settings', icon: '⚙️', view: 'settings' },
+    ];
+
+    // Add billing-related items only for residents
+    if (user && user.role === 'ROLE_RESIDENT') {
+      return [
+        { name: 'Dashboard', icon: '🏠', view: 'dashboard' },
+        { name: 'Billing & Payments', icon: '💳', view: 'billing-payments' },
+        { name: 'My Bills', icon: '📄', view: 'my-bills' },
+        { name: 'Users', icon: '👥', view: 'users' },
+        { name: 'Settings', icon: '⚙️', view: 'settings' },
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const navItems = getNavItems();
+
+  const handleNavClick = (view) => {
+    if (onNavigate) {
+      onNavigate(view);
+    }
+  };
 
   return (
     <aside className="sidebar">
@@ -18,11 +40,22 @@ function Sidebar() {
       <nav className="sidebar-nav">
         <ul>
           {navItems.map((item) => (
-            <li key={item.name} className={item.name === 'Dashboard' ? 'active' : ''}>
-              <a href="#">
+            <li key={item.name} className={currentView === item.view ? 'active' : ''}>
+              <button 
+                onClick={() => handleNavClick(item.view)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  width: '100%', 
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  padding: '10px',
+                  color: 'inherit'
+                }}
+              >
                 <span className="icon">{item.icon}</span>
                 <span>{item.name}</span>
-              </a>
+              </button>
             </li>
           ))}
         </ul>

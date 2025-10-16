@@ -5,12 +5,15 @@ import SignupPage from './components/SignupPage';
 import AdminDashboard from './components/AdminDashboard';
 import StaffDashboard from './components/StaffDashboard';
 import ResidentDashboard from './components/ResidentDashboard';
+import BillingPayments from './components/BillingPayments';
+import MyBills from './components/MyBills';
 import Sidebar from './components/Sidebar';
 import './App.css';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [view, setView] = useState('login');
+  const [currentView, setCurrentView] = useState('dashboard');
 
   const handleLoginSuccess = (userData) => {
     setCurrentUser(userData);
@@ -21,14 +24,30 @@ function App() {
     setView('login');
   };
 
-  const renderDashboard = () => {
+  const handleNavigation = (viewName) => {
+    setCurrentView(viewName);
+  };
+
+  const renderContent = () => {
+    // Handle special views for residents
+    if (currentUser.role === 'ROLE_RESIDENT') {
+      switch (currentView) {
+        case 'billing-payments':
+          return <BillingPayments user={currentUser} />;
+        case 'my-bills':
+          return <MyBills user={currentUser} />;
+        case 'dashboard':
+        default:
+          return <ResidentDashboard user={currentUser} />;
+      }
+    }
+    
+    // For admin and staff, always show their dashboard
     switch (currentUser.role) {
       case 'ROLE_ADMIN':
         return <AdminDashboard user={currentUser} />;
       case 'ROLE_STAFF':
         return <StaffDashboard user={currentUser} />;
-      case 'ROLE_RESIDENT':
-        return <ResidentDashboard user={currentUser} />;
       default:
         return <p>Unknown role. Please contact support.</p>;
     }
@@ -53,18 +72,10 @@ function App() {
       ) : (
         // If logged in, render the main dashboard layout with the sidebar.
         <div className="app-wrapper">
-          <Sidebar />
+          <Sidebar user={currentUser} onNavigate={handleNavigation} currentView={currentView} />
           <div className="content-wrapper">
-            <header className="app-header">
-              <div className="user-info">
-                <span>Welcome, {currentUser.name}!</span>
-                <button onClick={handleLogout} className="logout-button">
-                  Logout
-                </button>
-              </div>
-            </header>
             <main className="main-content">
-              {renderDashboard()}
+              {renderContent()}
             </main>
           </div>
         </div>

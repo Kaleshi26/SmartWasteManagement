@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class WasteService {
@@ -34,6 +35,24 @@ public class WasteService {
         return details;
     }
     // <<< END: NEW METHOD >>>
+
+    // Method to create test bins for development
+    public WasteBin createTestBin(String binId, String address, Long residentId) {
+        User resident = userRepository.findById(residentId)
+                .orElseThrow(() -> new RuntimeException("Resident not found with ID: " + residentId));
+        
+        WasteBin bin = new WasteBin();
+        bin.setBinId(binId);
+        bin.setAddress(address);
+        bin.setResident(resident);
+        
+        return wasteBinRepository.save(bin);
+    }
+
+    // Method to get all bins
+    public List<WasteBin> getAllBins() {
+        return wasteBinRepository.findAll();
+    }
 
     public CollectionEvent recordCollection(String binId, Long staffId, Double weight) {
         // This existing method remains unchanged

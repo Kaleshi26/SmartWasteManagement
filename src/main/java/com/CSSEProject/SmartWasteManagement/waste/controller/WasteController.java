@@ -4,6 +4,7 @@ package com.CSSEProject.SmartWasteManagement.waste.controller;
 import com.CSSEProject.SmartWasteManagement.dto.BinDetailsDto; // <<< ADD
 import com.CSSEProject.SmartWasteManagement.dto.CollectionRequestDto;
 import com.CSSEProject.SmartWasteManagement.waste.entity.CollectionEvent;
+import com.CSSEProject.SmartWasteManagement.waste.entity.WasteBin;
 import com.CSSEProject.SmartWasteManagement.waste.service.WasteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,27 @@ public class WasteController {
         }
     }
     // <<< END: NEW ENDPOINT >>>
+
+    // Endpoint to get all bins
+    @GetMapping("/bins")
+    public ResponseEntity<?> getAllBins() {
+        try {
+            return ResponseEntity.ok(wasteService.getAllBins());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Endpoint to create test bins for development
+    @PostMapping("/create-test-bin")
+    public ResponseEntity<?> createTestBin(@RequestParam String binId, @RequestParam String address, @RequestParam Long residentId) {
+        try {
+            WasteBin testBin = wasteService.createTestBin(binId, address, residentId);
+            return ResponseEntity.ok("Test bin created successfully: " + testBin.getBinId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PostMapping("/collect")
     public ResponseEntity<?> recordCollectionEvent(@RequestBody CollectionRequestDto requestDto) {
